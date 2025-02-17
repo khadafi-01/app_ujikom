@@ -140,4 +140,102 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </body>
 
+<script>
+    const passwordInput = document.getElementById('password');
+    const passwordStrength = document.getElementById('password_strength');
+    const passwordBar = document.getElementById('password_bar');
+    const togglePassword = document.getElementById('togglePassword');
+    const registerForm = document.getElementById('registerForm');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+    // Toggle visibility for main password
+    togglePassword.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Toggle eye-slash icon
+        togglePassword.classList.toggle('fa-eye-slash');
+        tooglePassword.classList.toggle('fa-eye');
+    });
+
+    // Toggle visibility for Confirm Password
+    toggleConfirmPassword.addEventListener('click', () => {
+        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPasswordInput.setAttribute('type', type);
+
+        // Toggle eye-slash icon
+        toggleConfirmPassword.classList.toggle('fa-eye-slash');
+        tooglePassword.classList.toggle('fa-eye');
+    })
+
+    // Validate password strength and update bar
+    passwordInput.addEventListener('input', () => {
+        const value = passwordInput.value;
+        const hasLetter = /[a-zA-Z]/.test(value);
+        const hasNumber = /\d/.test(value);
+        const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+        let strength = 0;
+
+        if (value.length >= 8) strength++;
+        if (hasLetter) strength++;
+        if (hasNumber) strength++;
+        if (hasSymbol) strength++;
+
+        // Update password strength and bar
+
+        if (value.length === 0) {
+            passwordStrength.textContent = '';
+            passwordStrength.style.color = '';
+            passwordBar.style.width = '0%';
+        } else if (strength === 4) {
+            passwordStrength.textContent = 'Password sangat kuat';
+            passwordStrength.style.color = 'green';
+            passwordBar.style.width = '100%';
+            passwordBar.style.backgroundColor = 'green';
+        } else if (strength === 3) {
+            passwordStrength.textContent = 'Password kuat';
+            passwordStrength.style.color = 'orange';
+            passwordBar.style.width = '75%';
+            passwordBar.style.backgroundColor = 'orange';
+        } else if (strength === 2) {
+            passwordStrength.textContent = 'Password cukup kuat';
+            passwordStrength.style.color = 'purple';
+            passwordBar.style.width = '50%';
+            passwordBar.style.backgroundColor = 'purple';
+        } else {
+            passwordStrength.textContent = 'Password lemah';
+            passwordStrength.style.color = 'red';
+            passwordBar.style.width = '25%';
+            passwordBar.style.backgroundColor = 'red';
+        }
+    });
+
+    // Validate password on form submit for register page
+    registerForm.addEventListener('submit', (e) => {
+        const password = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+
+        if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Password harus mengandung huruf dan angka!',
+            });
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Password tidak cocok!',
+            });
+            return false;
+        }
+    });
+</script>
+
 </html>

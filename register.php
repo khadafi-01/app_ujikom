@@ -27,6 +27,215 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($conn->query($sql) === TRUE) {
             $_SESSION['user_id'] = $conn->insert_id;
             $success = "Error: " . $conn->error;
+            // Redirect ke halaman login setelah berhasil
+            header('Location: login.php'); // Ganti dengan URL yang sesuai
+            exit();
+        } else {
+            $error = "Error: " . $conn->error;
         }
     }
 }
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+
+<style>
+    /* CSS to add line under the eye icon */
+    .fa-eye-slash::after,
+    .fa-eye::after {
+        content: '';
+        position: absolute;
+        width: 120%;
+        /* Membuat garis sedikit lebih panjang */
+        height: 2px;
+        background-color: black;
+        bottom: 5.6px;
+        left: -12%;
+        /* Memperpanjang ke kiri agar lebih simetris */
+        visibility: hidden;
+        transform: rotate(-60deg);
+        /* Default: hidden when password is visible */
+    }
+
+    .fa-eye-slash::after {
+        visibility: visible;
+        /* Show line when the password is hidden */
+    }
+</style>
+</head>
+
+<body class="bg-gray-100 flex justify-center items-center h-screen">
+    <div class="w-full max-w-sm bg-white p-6 rounded shadow-lg">
+        <h2 class="text-2xl font-bold mb-4 text-center">Register</h2>
+        <?php if (!empty($error)) : ?>
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '<?php echo $error; ?>',
+                });
+            </script>
+        <?php elseif (!empty($success)) : ?>
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: '<?php echo $success; ?>',
+                }).then(() => {
+                    // Using Toastify to show the success message
+                    Toastify({
+                        text: "Data berhasil tersimpan",
+                        backgroundColor: "green",
+                        duration: 3000, // 3 seconds
+                        close: true,
+                        gravity: "bottom", // "top" or "bottom"
+                        position: "center", // "left", "center", or "right"
+                        stopOnFocus: true // Will not close the toast if hovered
+                    }).showToast();
+
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = "login.php";
+                    }, 3000); // Redirect after 3 seconds (when toast message is gone)
+                });
+            </script>
+        <?php endif; ?>
+
+        <form id="registerForm" action="" method="POST">
+            <div class="mb-4">
+                <label for="username" class="block text-gray-700">Username</label>
+                <input type="text" id="username" name="username" class="w-full p-2 border rounded">
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-gray-700">Password</label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" class="w-full p-2 border rounded pr-10">
+                    <i class="fas fa-eye absolute top-3 right-3 cursor-pointer text-gray-500" id="togglePassword"></i>
+                </div>
+                <div id="password_strength" class="mt-2 text-sm"></div>
+                <div id="password_bar" class="h-1 bg-gray-300 mt-1 rounded-full"></div>
+            </div>
+            <div class="mb-4">
+                <label for="confirm_password" class="block text-gray-700">Confirm Password</label>
+                <div class="relative">
+                    <input type="password" id="confirm_password" name="confirm_password" class="w-full p-2 border rounded pr-10">
+                    <i class="fas fa-eye absolute top-3 right-3 cursor-pointer text-gray-500" id="toggleConfirmPassword"></i>
+                </div>
+            </div>
+            <button class="bg-blue-500 px-4 py-2 rounded hover:bg-blue-700 w-full" type="submit">Register</button>
+        </form>
+    </div>
+</body>
+
+
+
+<script>
+    const passwordInput = document.getElementById('password');
+    const passwordStrength = document.getElementById('password_strength');
+    const passwordBar = document.getElementById('password_bar');
+    const togglePassword = document.getElementById('togglePassword');
+    const registerForm = document.getElementById('registerForm');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+    // Toggle visibility for main password
+    togglePassword.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Toggle eye-slash icon
+        togglePassword.classList.toggle('fa-eye-slash');
+        tooglePassword.classList.toggle('fa-eye');
+    });
+
+    // Toggle visibility for Confirm Password
+    toggleConfirmPassword.addEventListener('click', () => {
+        const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPasswordInput.setAttribute('type', type);
+
+        // Toggle eye-slash icon
+        toggleConfirmPassword.classList.toggle('fa-eye-slash');
+        tooglePassword.classList.toggle('fa-eye');
+    })
+
+    // Validate password strength and update bar
+    passwordInput.addEventListener('input', () => {
+        const value = passwordInput.value;
+        const hasLetter = /[a-zA-Z]/.test(value);
+        const hasNumber = /\d/.test(value);
+        const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(value);
+        let strength = 0;
+
+        if (value.length >= 8) strength++;
+        if (hasLetter) strength++;
+        if (hasNumber) strength++;
+        if (hasSymbol) strength++;
+
+        // Update password strength and bar
+
+        if (value.length === 0) {
+            passwordStrength.textContent = '';
+            passwordStrength.style.color = '';
+            passwordBar.style.width = '0%';
+        } else if (strength === 4) {
+            passwordStrength.textContent = 'Password sangat kuat';
+            passwordStrength.style.color = 'green';
+            passwordBar.style.width = '100%';
+            passwordBar.style.backgroundColor = 'green';
+        } else if (strength === 3) {
+            passwordStrength.textContent = 'Password kuat';
+            passwordStrength.style.color = 'orange';
+            passwordBar.style.width = '75%';
+            passwordBar.style.backgroundColor = 'orange';
+        } else if (strength === 2) {
+            passwordStrength.textContent = 'Password cukup kuat';
+            passwordStrength.style.color = 'purple';
+            passwordBar.style.width = '50%';
+            passwordBar.style.backgroundColor = 'purple';
+        } else {
+            passwordStrength.textContent = 'Password lemah';
+            passwordStrength.style.color = 'red';
+            passwordBar.style.width = '25%';
+            passwordBar.style.backgroundColor = 'red';
+        }
+    });
+
+    // Validate password on form submit for register page
+    registerForm.addEventListener('submit', (e) => {
+        const password = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+
+        if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Password harus mengandung huruf dan angka!',
+            });
+            return false;
+        }
+
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Password tidak cocok!',
+            });
+            return false;
+        }
+    });
+</script>
+
+</html>

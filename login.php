@@ -73,6 +73,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php include 'includes/footer.php'; ?>
 
+    <script>
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+
+        // Set status awal ikon
+        if (passwordInput.getAttribute('type') === 'password') {
+            togglePassword.classList.add('fa-eye-slash'); // Set ikon mata ter-slash (password disembunyikan)
+        } else {
+            togglePassword.classList.add('fa-eye'); // Set ikon mata (password terlihat)
+        }
+
+        // Toggle visibility untuk password
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // Toggle ikon mata
+            if (type === 'password') {
+                togglePassword.classList.add('fa-eye-slash');
+                togglePassword.classList.remove('fa-eye');
+            } else {
+                togglePassword.classList.add('fa-eye');
+                togglePassword.classList.remove('fa-eye-slash');
+            }
+        });
+    </script>
 </body>
 
 </html>
